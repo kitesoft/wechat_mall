@@ -7,9 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"wemall/config"
-	"wemall/model"
-
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/kataras/iris.v6"
@@ -32,6 +30,8 @@ var (
 	debug      = flag.Bool("debug", false, "debug log")
 	srvConfig  Config
 )
+
+var DB *gorm.DB
 
 func main() {
 
@@ -57,7 +57,7 @@ func main() {
 	app.Adapt(iris.DevLogger())
 
 	app.Adapt(sessions.New(sessions.Config{
-		Cookie:  config.ServerConfig.SessionID,
+		Cookie:  srvConfig.Server.SessionID,
 		Expires: time.Minute * 20,
 	}))
 
@@ -67,7 +67,7 @@ func main() {
 
 	app.OnError(iris.StatusNotFound, func(ctx *iris.Context) {
 		ctx.JSON(iris.StatusOK, iris.Map{
-			"errNo": model.ErrorCode.NotFound,
+			"errNo": 4003,
 			"msg":   "Not Found",
 			"data":  iris.Map{},
 		})
@@ -76,7 +76,7 @@ func main() {
 
 	app.OnError(500, func(ctx *iris.Context) {
 		ctx.JSON(iris.StatusInternalServerError, iris.Map{
-			"errNo": model.ErrorCode.ERROR,
+			"errNo": 5000,
 			"msg":   "error",
 			"data":  iris.Map{},
 		})

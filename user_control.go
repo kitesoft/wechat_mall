@@ -8,9 +8,6 @@ import (
 	"net/url"
 	"strings"
 
-	"wemall/model"
-	"wemall/utils"
-
 	"gopkg.in/kataras/iris.v6"
 )
 
@@ -77,7 +74,7 @@ func WeAppLogin(ctx *iris.Context) {
 	resData := iris.Map{}
 	resData[srvConfig.Server.SessionID] = session.ID()
 	ctx.JSON(iris.StatusOK, iris.Map{
-		"errNo": model.ErrorCode.SUCCESS,
+		"errNo": 200,
 		"msg":   "success",
 		"data":  resData,
 	})
@@ -104,31 +101,31 @@ func SetWeAppUserInfo(ctx *iris.Context) {
 		return
 	}
 
-	userInfoStr, err := utils.DecodeWeAppUserInfo(weAppUser.EncryptedData, sessionKey, weAppUser.IV)
+	userInfoStr, err := DecodeWeAppUserInfo(weAppUser.EncryptedData, sessionKey, weAppUser.IV)
 	if err != nil {
 		fmt.Println(err.Error())
 		SendErrJSON("error", ctx)
 		return
 	}
 
-	var user model.WeAppUser
+	var user WeAppUser
 	if err := json.Unmarshal([]byte(userInfoStr), &user); err != nil {
 		SendErrJSON("error", ctx)
 		return
 	}
 
-	mallUser := &model.User{}
-	model.DB.Where("nickname = ?", user.Nickname).First(mallUser)
+	mallUser := &User{}
+	DB.Where("nickname = ?", user.Nickname).First(mallUser)
 	if mallUser.ID == 0 {
 		//执行插入操作
 		mallUser.Nickname = user.Nickname
 		mallUser.OpenID = user.OpenID
-		model.DB.Create(&mallUser)
+		DB.Create(&mallUser)
 	}
 
 	session.Set("weAppUser", user)
 	ctx.JSON(iris.StatusOK, iris.Map{
-		"errNo": model.ErrorCode.SUCCESS,
+		"errNo": 2000,
 		"msg":   "success",
 		"data":  iris.Map{},
 	})
@@ -138,7 +135,7 @@ func SetWeAppUserInfo(ctx *iris.Context) {
 //更新用户信息
 func UpdateUserInfo(ctx *iris.Context) {
 
-	var user model.User
+	var user User
 	var updateMap iris.Map
 
 	if ctx.ReadJSON(&updateMap) != nil {
@@ -157,10 +154,10 @@ func UpdateUserInfo(ctx *iris.Context) {
 
 	openId := session.GetString("weAppOpenID")
 
-	model.DB.Model(&user).Where("open_id = ?", openId).Updates(updateMap)
+	DB.Model(&user).Where("open_id = ?", openId).Updates(updateMap)
 
 	ctx.JSON(iris.StatusOK, iris.Map{
-		"errNo": model.ErrorCode.SUCCESS,
+		"errNo": 2000,
 		"msg":   "success",
 		"data":  iris.Map{},
 	})
@@ -169,8 +166,7 @@ func UpdateUserInfo(ctx *iris.Context) {
 
 //获取用户信息
 func GetUserInfo(ctx *iris.Context) {
-
-	var user model.User
+	var user User
 
 	session := ctx.Session()
 	if session == nil {
@@ -180,10 +176,10 @@ func GetUserInfo(ctx *iris.Context) {
 
 	openId := session.GetString("weAppOpenID")
 
-	model.DB.Model(&user).Where("open_id = ?", openId)
+	DB.Model(&user).Where("open_id = ?", openId)
 
 	ctx.JSON(iris.StatusOK, iris.Map{
-		"errNo": model.ErrorCode.SUCCESS,
+		"errNo": 2000,
 		"msg":   "success",
 		"data":  user,
 	})
