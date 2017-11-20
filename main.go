@@ -71,7 +71,6 @@ func main() {
 			"msg":   "Not Found",
 			"data":  iris.Map{},
 		})
-
 	})
 
 	app.OnError(500, func(ctx *iris.Context) {
