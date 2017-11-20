@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"encoding/json"
@@ -17,13 +17,14 @@ type Config struct {
 	Mysql  MysqlConfig  `json:"mysql"`
 	Redis  RedisConfig  `json:"redis"`
 	//	Jwt    JwtConfig    `json:"jwt"`
-	wechat WechatConfig `json:"wechat"`
+	Wechat WechatConfig `json:"wechat"`
 }
 
 type ServerConfig struct {
 	Name      string `json:"name" yaml:"name"`
 	ConnLimit int    `json:"connlimit" yaml:"connlimit"`
 	ReteLimit int    `json:"ratelimit" yaml:"ratelimit"`
+	SessionID string `json:"sessionid" yaml:"sessionid"`
 }
 
 type MysqlConfig struct {
@@ -47,6 +48,9 @@ type RedisConfig struct {
 //}
 
 type WechatConfig struct {
+	CodeToSessURL string `json:"code2session_url"`
+	AppID         string `json:"appid"`
+	Secret        string `json:"secret"`
 }
 
 func (this *Config) Load(file string) (err error) {

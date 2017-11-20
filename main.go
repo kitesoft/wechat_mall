@@ -6,7 +6,9 @@ import (
 	"os"
 	"strconv"
 	"time"
-	"wechat_mall/config"
+
+	"wemall/config"
+	"wemall/model"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sirupsen/logrus"
@@ -28,7 +30,7 @@ var (
 	serverPort = flag.Int("p", 7200, "the server port")
 	configFile = flag.String("c", "config.json", "config file")
 	debug      = flag.Bool("debug", false, "debug log")
-	srvConfig  config.Config
+	srvConfig  Config
 )
 
 func main() {
@@ -52,9 +54,7 @@ func main() {
 		Charset: "UTF-8",
 	})
 
-	if debug {
-		app.Adapt(iris.DevLogger())
-	}
+	app.Adapt(iris.DevLogger())
 
 	app.Adapt(sessions.New(sessions.Config{
 		Cookie:  config.ServerConfig.SessionID,
@@ -63,7 +63,7 @@ func main() {
 
 	app.Adapt(httprouter.New())
 
-	route.Route(app)
+	Route(app)
 
 	app.OnError(iris.StatusNotFound, func(ctx *iris.Context) {
 		ctx.JSON(iris.StatusOK, iris.Map{
@@ -82,5 +82,5 @@ func main() {
 		})
 	})
 
-	app.Listen(":" + strconv.Itoa(serverPort))
+	app.Listen(":" + strconv.Itoa(*serverPort))
 }

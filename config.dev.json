@@ -3,6 +3,7 @@
 		"name": "wechat_mall",
         "connlimit": 100000,
         "ratelimit": 20000,
+		"sessionid":"wechatmall"
     },
     "mysql": {
         "user": "bnS5nG9MfKbYFOyY2q03o9IZMgqnf_A4Fw==",
